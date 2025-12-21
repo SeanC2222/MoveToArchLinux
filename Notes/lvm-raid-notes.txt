@@ -1,0 +1,3 @@
+https://bugs.archlinux.org/task/71385
+
+"I can confirm that additng 'dm-raid raid0 raid1 raid456' to MODULES in /etc/mkinitcpio.conf "fix" this issue"

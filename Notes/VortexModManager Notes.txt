@@ -1,0 +1,129 @@
+# Installation
+
+## Pre-Requisites
+
+You should install via proton. Easiest way is a manual use.
+
+Downloads:
+- Vortex Mod Manager Installer
+- Proton (Usually prefer Proton-GE, and install into Steam)
+
+The Vortex Mod Manager installer should be a single file, and can land wherever you download it.
+Proton needs to be installed by either leveraging Steam (Select a game from your library, click the gear, go to Properties...=>Compatibility and force then select a specific Steam Play compatibility tool), or you can install it from GE-Proton and follow an appropriate guide (which should probably land it in the Steam folder by the end of the guide, and you can verify it in Steam with the previous steps).
+
+Before running proton commands, you need to set the following variables:
+
+```
+// INSTALL_PATH isn't right currently. This is more "Steam home location"
+export STEAM_COMPAT_INSTALL_PATH=/home/seanm/.local/share/Steam // Example with user seanm; This is your base steam folder location.
+export STEAM_COMPAT_DATA_PATH=/mnt/games_ssd/SteamLibrary/steamapps/compatdata/489830 // Example using SkyrimSE appId.
+```
+
+The install path should be pretty straightforward. Where is the core Steam installed?
+
+The data path ends up being the "WINEPREFIX" path, but dressed up. Steam separates prefixes by app ID so they operate in discrete environments. For Vortex, you should just make an arbitrary one up (verify via Google you won't have a collision with an actual game ID). It's also worth noting in the example DATA_PATH that it's using an actual Steam path. This isn't required. If you want to install Vortex somewhere else (on a different drive/path) you very much can, but Proton requires the arbitrary AppId as part of the token meaning the STEAM_COMPAT_DATA_PATH format looks like:
+
+**`export` IS REQUIRED**. You can't simply set variables, they must be exported as Environmental Variables for Proton to see them.
+
+```
+STEAM_COMPAT_DATA_PATH={your path here}/{your app id here}
+```
+
+Once these are set, I found it easiest to initialize the run environment and validate it initializes the right folder before I move on. This requires your first Proton command:
+
+Depending on where your proton lives, your proton command will look something like:
+
+```
+$STEAM_COMPAT_INSTALL_PATH/compatibility.d/{ProtonVersion}/proton {SomeFakeString}
+```
+{ProtonVersion} is simply the version of proton you have. For example: "GE-Proton10-26"
+{SomeFakeString} is supposed to be anything that isn't one of the "Proton verbs". Throw in a single letter, or keyboard smash and it will be fine.
+
+Full example:
+```
+$STEAM_COMPAT_INSTALL_PATH/compatibility.d/GE-Proton10-26/proton h
+```
+
+You'll hit an error, but you can validate at your STEAM_COMPAT_DATA_PATH if there appears to be some new folders at the location.
+
+Once this has been validated, you'll want to run the installer:
+
+
+```
+$STEAM_COMPAT_INSTALL_PATH/compatibility.d/GE-Proton10-26/proton waitforexitandrun {PathToInstaller}
+```
+{PathToInstaller} is the path to your installer file; e.g. "~/Downloads/vortex-mod-manager.msi"
+
+This may lag, but it will run the install wizard and installation just like on Windows.
+
+DO NOT RUN Vortex at the end of the installer.
+
+Once complete, exit the installer, then run the command against your installed Vortex exe (inside the pfx environment).
+
+Example:
+```
+$STEAM_COMPAT_INSTALL_PATH/compatibility.d/GE-Proton10-26/proton waitforexitandrun $STEAM_COMPAT_DATA_PATH/pfx/drive_c/Program Files/Black Tree Gaming Ltd/Vortex/Vortex.exe
+```
+
+This should successfully boot, proving your install was successful.
+
+# Configuring a Game (E.g. SkyrimSE)
+
+If you're familiar with the concept of isolated environments/containers, you may have caught on that your games will live in a different world than your Vortex Mod manager making installing mods tough. We did this on purpose though.
+
+What we need to do, is convince both the game world and the vortex world that files are in the right spots... Without excess duplication of files (like installing Vortex in each environment for every game you want to mod).
+
+We do this with a few key _symlinks_. Symlinks are "files" that are references to other files. They have no actual data living under them, they simply point you to a new location. But most importantly, because of how they live in the file tree the location they point to appears to live in the file path where you place the link!
+
+For example:
+
+We want key_1 to appear to live somewhere else, but not actually duplicate the files.
+/home/my/example/path/key_1/
+We want:
+/home/my/somewhere/else/key_1/
+
+We can create a symlink under /home/my/somewhere/else/ and point it to the new location as follows:
+
+```
+sudo ln -s /home/my/example/path/key_1/ /home/my/somewhere/else/key_1
+```
+
+If you navigate to /home/my/somewhere/else/ you'll see a "key_1" folder that you can click into (likely has a differentiated appearance though!), and you'll see all the key_1 files. This is because you're actually in the key_1 folder, but you got there from a different path! However, you'll see that your path (address bar, or `pwd` if you're in a terminal) shows that you got there from your desired /home/my/somewhere/else/ path!
+
+This is how we trick the two worlds into writing and reading from different locations while they think they're writing to their own locations.
+
+Each game may be a little different, so you'll have to devise your mapping strategy per file/folder. But if you understand that you can replace a file/folder in the Vortex environment with a symlink to one in the game environment and both worlds will share that same target, you will be able to decide which data should live under which environment. Why? Because if you uninstall a game and the file/folder lived in the game environment, you'll lose the data.
+
+For SkyrimSe you need:
+1) Vortex path to Skyrim.exe
+2) Vortex path to a "staging folder" in Skyrim's "pfx/drive_c"
+3) Vortex path to Skyrim's "AppData/Local/Skyrim Special Edition"
+4) Vortex path to Skyrim's "Documents/My Games/Skyrim Special Edition"
+
+The first two represent common requirements for any game: You'll need Vortex to see the .exe to think it can "manage" it, and you'll need a "staging folder" for Vortex to download/prep files before it installs it to the game folder.
+The last two represent game-specific mappings. These are required to write plugin related data so Skyrim can load and run the mods that get installed.
+
+Example Configuration:
+
+1) sudo ln -s $STEAM_LIBRARY_PATH/steamapps/common/Skyrim Special Edition $VORTEX_DATA_PATH/pfx/drive_c/Program Files // STEAM_LIBRARY_PATH would be the root path to the drive library where Skyrim is installed, symlinked into Vortex's Program Files
+2) sudo ln -s $STEAM_COMPAT_DATA_PATH/pfx/drive_c/VortexMods $VORTEX_DATA_PATH/pfx/drive_c/VortexMods/skyrimse        // NOTE: This folder _must_ exist in the game environment's drive_c for mods to be able to be loaded to the game. Also note: I added a "skyrimse" to the path of where I want the symlink to be created because I like to separate my modes into their own game-specific sub-folders.
+READ THE NOTES NEXT TO THE FIRST 2 COMMANDS
+
+3) sudo ln -s "$STEAM_COMPAT_DATA_PATH/pfx/drive_c/users/steamuser/AppData/Local/Skyrim Special Edition" "$VORTEX_DATA_PATH/pfx/drive_c/users/steamuser/AppData/Local/Skyrim Special Edition"
+4) sudo ln -s "$STEAM_COMPAT_DATA_PATH/pfx/drive_c/users/steamuser/Documents/My Games/Skyrim Special Edition" "$VORTEX_DATA_PATH/pfx/drive_c/users/steamuser/Documents/My Games/Skyrim Special Edition"
+
+By my best understanding, any swapping of paths/data combinations should still work as long as the folders/symlinks are all pointed at the right locations. The question just becomes "if it lives in the game environment, do I want to risk losing it when Proton upgrades?" and in reverse for if it lives in the Vortex environment and you decide to wipe/reinstall Vortex.
+
+# Vortex Configuration
+
+At this point the files/symlinks are all in place, you just need to make Vortex go.
+
+Open vortex using your proton waitforexitandrun vortex command (see below for a codified bootstrapping script example).
+
+You need to first manage the game, so go to the Games tab and find the game under the Vortex C:\ and select the folder. e.g. "C:\Program Files\Skyrim Special Edition".
+
+Once managed, you can configure the mod staging folder. You do this by selecting the game, then going to settings and "Mods", and there should be a selection to browse or enter your staging folder.
+
+That's it. Ensure your game has been run at least once (doesn't need play time, just booting; games will often generate first-run files that are necessary before mods can be installed), and then test install a mod and test it.
+
+Good luck!

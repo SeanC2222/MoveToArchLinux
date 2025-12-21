@@ -1,0 +1,140 @@
+# Launch Options Documentation
+
+Launch options are an injection point into the launch cycle of Steam games where you can run arbitrary code as part of the launch process. This is important in Linux where we can configure a handful of settings, pretty much only on the launch path to Proton (the compatability layer, "compat", that enables Windows software to run on Linux kernels).
+
+## Terminology:
+
+Mesa - The open source Linux drivers for AMD GPU hardware primarily used in the AMD/Linux gaming world. Required to leverage your AMD GPU hardware to its fullest (i.e.... _at all_).
+
+Wine - The original Windows _compatability_ layer. This software sits between the game and the hardware, and intercepts calls to the hardware and provides a Linux specific translation. In order to use Wine, you must call the game process within a Wine context. Wine is not an emulator, nor is it a VM, but it _does_ need certain Windows references for Windows software to work on top of its compatability layer. So, it can create a "windows like" environment in a target folder that it uses to emulate things like a C:\ and a windows install. This provides a Windows .exe the required Windows context (most of the time) to operate. Wine does not encapsulate a full Windows install, but it does have a lot of the necessary library references and components for most games to work. *NOTE*: This environment adds about 400-600MB of overhead, per game, if you're running them in isolation (see: Proton).
+
+Wine "prefix" - This is a weird word I haven't figured out the origin of, but it means "the path to the Wine environment" described under Wine. It's used interchangably with the specific path, as well as the environment itself as the pertinent detail to Wine functioning is informing it _where_ the environment is through an environmental variable, WINEPREFIX, which is in fact the path.
+
+Proton - Steam's proprietary branch of Wine that has matured and grown to more robustly support gaming and other Steam desired features. Most people don't use Wine directly anymore, but understanding Proton is a "next step" from wine simplifies things.
+
+GE Proton - Some guy decided Valve didn't do a good enough job, fast enough, and wrote his own branch of Proton with advanced features enabled and supported Loooooool. It works great and is pretty much the standard for "hardcore" gaming and maximizing your gaming experience.
+    https://github.com/GloriousEggroll/proton-ge-custom
+    Probably should donate to him: https://patreon.com/gloriouseggroll
+
+FSR - AMD's upscaling technology used primarily for taking lower resolutions and expanding them to larger resolutions (upscaling). It can also be used by certain games to generate frames based on motion vectors of the game.
+
+AMD Fluid Motion Frames (AFMF) - AMD's driver level frame generation technology. Not available through Mesa at this time (Dec, 2025).
+
+MangoHud - A utility for monitoring your gaming hardware profiles. From FPS to CPU/GPU load, it's the standard choice for hardware monitoring. This also, strangely, provides certain utilities for managing a few facets of gaming (like an FPS limit). Not generally the recommended point of management.
+
+"game mode", and `gamemoderun` - "Game mode" is basically an OS concept about balancing OS resources towards gaming processes while gaming. `gamemoderun` is a utility for enabling a game mode through a process scoping. You want this to go around the conceptual "game" invocation command that it will wrap.
+
+gamescope - A Steam utility ("compositor"), for managing a gaming Window. It provides a window scope of management for numerous gaming features being enabled relating to the rendering pipeline. This can enable certain features a game may not natively support, but its strongest power is managing the upscaling for games that don't implement it natively. You can define the game render resolution, and the gamescope window resolution and use FSR to have _gamescope_ do the upscaling of the signal. This invocation should be as close to the steam command as possible.
+
+Wayland - A "display server" that is "simpler and more secure replacement for x11 (the long standing display server)". It is still being developed, so it's very hit and miss on quality.
+
+HDR (High Dynamic Range) - A visual process to enhance games, videos, rendering to offer a wider range of brightness, contracts and color.
+
+
+```
+PROTON_ENABLE_WAYLAND=1 WINE_FULLSCREEN_FSR=1 WINE_FULLSCREEN_FSR_STRENGTH=2 PROTON_ENABLE_HDR=1 PROTON_FSR4_UPGRADE=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16,fps_limit=124 gamemoderun mangohud gamescope -f -F fsr -W 5120 -H 1440 -w 3840 -h 1080 --mangoapp --hdr-enabled --adaptive-sync  --force-grab-cursor -- %command% >> logfile.txt 2>&1
+```
+
+PROTON_ENABLE_WAYLAND=1                  | Enables native wayland display management, MAY INTRODUCE INPUT LAG
+WINE_FULLSCREEN_FSR=1                    | Enables FSR Upscaling,
+                                            | Enable AMD FidelityFX Super Resolution (FSR) 1, use in conjunction with
+                                            | WINE_FULLSCREEN_FSR_STRENGTH. Only works in Vulkan games (DXVK and VKD3D-Proton included).
+WINE_FULLSCREEN_FSR_STRENGTH=2           | Sets sharpness. Default: 2.
+                                            | AMD FidelityFX Super Resolution (FSR) strength, the default sharpening of 5 is enough without needing
+                                            | modification, but can be changed with 0-5 if wanted. 0 is the maximum sharpness, higher values mean less
+                                            | sharpening. 2 is the AMD recommended default and is set by GE-Proton by default.
+PROTON_ENABLE_HDR=1                      | Enables HDR in Proton. Needs gamescope flag AND desktop environment enabled, AND GAME SUPPORT FOR HDR.
+PROTON_FSR4_UPGRADE=1                    | Uses FSR4 over FSR3. Works with 7900xtx
+                                            | Automatically download amdxcffx64.dll and upgrade games with FSR 3.1 to use FSR 4. Version to download can
+                                            | be specified by supplying it as a value, like so PROTON_FSR4_UPGRADE="4.0.1", instead of 1. Downloads
+                                            | version 4.0.2 of the required DLL by default. This option also disables AMD Anti-Lag 2 currently due to
+                                            | various issues.
+MANGOHUD_CONFIG=                         | Configuration for MangoHud whether it runs in, or out of gamescope's process
+                                         | Full Configuration Options: https://github.com/flightlessmango/MangoHud?tab=readme-ov-file#environment-variables
+    alpha=0.4,                              | Opacity to 40$
+    show_fps_limit,                         | Shows governed FPS limit
+    cpu_mhz,                                | Displays CPU frequency
+    cpu_load_change                         | Changes color of label with usage
+    gpu_load,                               | Displays GPU frequency
+    gpu_load_change,                        | Changes color of label with usage
+    frametime,                              | Shows frametime graph, and simple metrics
+    gamemode,                               | Shows if gamemode is successfully enabled
+    position=top-right,                     | Positions the metrics in the top-right
+    font_size=24,                           | Primary metric font sizes (CPU, GPU, FPS)
+    font_size_secondary=16,                 | Secondary metric font sizes (frametime, gamemode)
+    fps_limit=124                           | MangoHud governed FPS limit (when no in-game, or gamescope FPS limits)
+
+
+gamemoderun                              | Utility that optimizes system settings temporarily (CPU/GPU to performance, Process priorities, etc)
+gamescope                                | Utility for creating a display container/environment to run game in
+    -f                                      | Force fullscreen
+    -W 5120                                 | Gamescope window width (Defaults to screen resolution)
+    -H 1440                                 | Gamescope window height (Defaults to screen resolution)
+    -w 3840                                 | GAME width (should be lower than screen resolution if using upscaling)
+    -h 1080                                 | GAME height (should be lower than screen resolution if using upscaling)
+    -F fsr                                  | Use FSR upscaling
+    --mangoapp                              | Enable MangoHud
+    --hdr-enabled                           | Enables HDR
+    --adaptive-sync                         | Enables Active sync
+    --force-grab-cursor                     | Grabs cursor within gamescope context
+    --expose-wayland                        | [Experimental] Exposes native wayland support. May not work well, may introduce input lag if it does work.
+-- %command% >> logfile.txt 2>&1         | Steam launch game with optional logging redirect to a file
+
+
+FOR DYNAMIC HANDLING OF GAMESCOPE RESOLUTIONS!
+
+Minified Example:
+```
+. "/home/seanm/.local/share/Steam/setEnvironmentVariables.sh" "skyrimse"; gamescope -f -w $SMALL_RENDER_WIDTH -h $SMALL_RENDER_HEIGHT -F fsr -- %command%
+```
+
+_Bash scripts can be invoked natively in the Launch Option_. This leverages a custom script to set in-game render width for gamescope to dynamically detected values (from switching screen resolutions). It then runs the game in the "small render" version (e.g. 3840x1080, when 5120x1440), and runs in Fullscreen mode with FSR upscaling.
+
+Note the quiet `.` at the beginning. The script is being invoked in the context of the Steam process and must be to be able to set the shareable variables.
+
+# Game Configurations
+
+## Armored Core VI Fires of Rubicon
+```
+PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 python ac6-patcher --all --rate 180 -- gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -F fsr --hdr-enabled --force-grab-cursor --adaptive-sync --mangoapp -- %command% &>> ~/Games/SteamLogs/ArmoredCoreVI/launch.txt
+```
+I modified the `er-patcher` for Armored Core VI (Find/replace "eldenring" => "armoredcore6"), and it works. This is just the ER launch command with that injected instead.
+
+
+## Baldur's Gate 3
+```
+gamemoderun -- %command%
+```
+
+## Borderlands 4
+```
+. "/home/seanm/source/repos/MoveToArchLinux/Helper Scripts/Steam/setEnvironmentVariables.sh" "borderlands4" &>> /home/seanm/Games/SteamLogs/Borderlands4/launch.txt; PROTON_ENABLE_HDR=1 PROTON_FSR4_UPGRADE=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16,fps_limit=12,fsr,hdr gamemoderun gamescope -f -w $SMALL_RENDER_WIDTH -h $SMALL_RENDER_HEIGHT --mangoapp --hdr-enabled --adaptive-sync  --force-grab-cursor --expose-wayland -- %command% >> logfile.txt 2>&1
+```
+
+## Counter-Strike 2
+```
+gamemoderun gamescope -r 240 -- %command%
+```
+
+## SkyrimSE
+```
+. "/home/seanm/source/repos/MoveToArchLinux/Helper Scripts/Steam/setEnvironmentVariables.sh" "skyrimse" &>> /home/seanm/Games/SteamLogs/SkryimSe/launch.txt; PROTON_ENABLE_WAYLAND=1 PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16,fps_limit=124 gamemoderun mangohud %command%
+
+```
+
+## Elden Ring
+```
+PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 python er-patcher --all --rate 180 -- gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -F fsr --hdr-enabled --force-grab-cursor --adaptive-sync --mangoapp -- %command% &>> ~/Games/SteamLogs/EldenRing/launch.txt
+```
+
+Elden Ring has a specialized boot layer `er-patcher` that unlocks FPS, and enables ultrawide (5120x1440) to work correctly. Local note in case my other notes get lost: `er-patcher` copies everything in the `(steam).../ELDEN RING/Game/` folder into a temporary sub folder before opening Elden Ring. This should be considered regarding some of the tweaks and mods (ERSS for example).
+
+
+
+Reference Hardware used in tuning:
+
+Motherboard:    ROG STRIX B550-F GAMING WIFI II
+CPU:            AMD Ryzen 7 5800X3D 8-Core Processor
+RAM:            64GB DDR4, 3600MHz
+GPU:            Radeon 7900xtx, Sapphire Nitro+
+Storage:        Samsung 990 M2 NVME Pro

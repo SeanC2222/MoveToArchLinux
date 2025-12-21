@@ -1,0 +1,5 @@
+Hi, I'm new. So until I get smart here's my cheat sheet lol
+
+    ALT+SPACE | Command bar
+    `kscreen-doctor -o` | Utility for adjusting displays
+    sudo chown seanm {file} | take ownership of a file
