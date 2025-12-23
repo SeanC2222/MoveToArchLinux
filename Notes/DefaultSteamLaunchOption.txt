@@ -68,6 +68,7 @@ MANGOHUD_CONFIG=                         | Configuration for MangoHud whether it
 gamemoderun                              | Utility that optimizes system settings temporarily (CPU/GPU to performance, Process priorities, etc)
 gamescope                                | Utility for creating a display container/environment to run game in
     -f                                      | Force fullscreen
+    -b                                      | Force borderless
     -W 5120                                 | Gamescope window width (Defaults to screen resolution)
     -H 1440                                 | Gamescope window height (Defaults to screen resolution)
     -w 3840                                 | GAME width (should be lower than screen resolution if using upscaling)
@@ -95,39 +96,105 @@ Note the quiet `.` at the beginning. The script is being invoked in the context 
 # Game Configurations
 
 ## Armored Core VI Fires of Rubicon
+#### (Dec 2025)
 ```
-PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 python ac6-patcher --all --rate 180 -- gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -F fsr --hdr-enabled --force-grab-cursor --adaptive-sync --mangoapp -- %command% &>> ~/Games/SteamLogs/ArmoredCoreVI/launch.txt
+PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 python ac6-patcher --all --rate 180 -- gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr --hdr-enabled --force-grab-cursor --adaptive-sync --mangoapp -- %command% &>> ~/Games/SteamLogs/ArmoredCoreVI/launch.txt
 ```
 I modified the `er-patcher` for Armored Core VI (Find/replace "eldenring" => "armoredcore6"), and it works. This is just the ER launch command with that injected instead.
 
 
 ## Baldur's Gate 3
+#### (Dec 2025)
 ```
 gamemoderun -- %command%
 ```
 
 ## Borderlands 4
+#### (Dec 2025)
 ```
 . "/home/seanm/source/repos/MoveToArchLinux/Helper Scripts/Steam/setEnvironmentVariables.sh" "borderlands4" &>> /home/seanm/Games/SteamLogs/Borderlands4/launch.txt; PROTON_ENABLE_HDR=1 PROTON_FSR4_UPGRADE=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16,fps_limit=12,fsr,hdr gamemoderun gamescope -f -w $SMALL_RENDER_WIDTH -h $SMALL_RENDER_HEIGHT --mangoapp --hdr-enabled --adaptive-sync  --force-grab-cursor --expose-wayland -- %command% >> logfile.txt 2>&1
 ```
 
 ## Counter-Strike 2
+#### (Dec 2025)
 ```
-gamemoderun gamescope -r 240 -- %command%
+gamemoderun %command%
 ```
 
-## SkyrimSE
+## Dark Souls II: Scholar of the First Sin
+#### (Dec 2025)
 ```
-. "/home/seanm/source/repos/MoveToArchLinux/Helper Scripts/Steam/setEnvironmentVariables.sh" "skyrimse" &>> /home/seanm/Games/SteamLogs/SkryimSe/launch.txt; PROTON_ENABLE_WAYLAND=1 PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16,fps_limit=124 gamemoderun mangohud %command%
+PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -F fsr -f --hdr-enabled --adaptive-sync --mangoapp -- %command%
+```
+Requires heavy modding. Run game on install before changing everything. Then run `.../source/repos/MoveToArchLinux/Scripts/Steam/dark_souls_ii_fixer.sh --dark_souls_ii`
 
+## Dark Souls III
+#### (Dec 2025)
 ```
+PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr --hdr-enabled --force-grab-cursor --adaptive-sync --mangoapp -- %command% &>> ~/Games/SteamLogs/EldenRing/launch.txt
+```
+
+Install the Proper PC mod prior to playing to unlock FPS/ultrawide. See `.../source/repos/MoveToArchLinux/Backup Game Utils/Dark Souls III`. Extract to `/DARK SOULS III/Game/*`
+
+## Dead Space
+#### (Dec 2025)
+```
+PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr -r 120 --hdr-enabled --adaptive-sync --mangoapp -- %command%
+```
+
+Has extreme 1-5% frames. Not sure what's triggering it. When it happens GPU shoots to 100, but it seems sporadic. Needs more tuning, but this looks good currently. `-r` doesn't seem to work.
+
+## Disco Elysium
+#### (Dec 2025)
+```
+gamemoderun %command%
+```
+
+## Dynasty Warriors 8 (Xtreme Legends Complete Edition)
+#### (Dec 2025)
+```
+gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr --mangoapp --adaptive-sync -- %command%
+```
+
+GE-Proton doesn't run this game as of (December 2025). Have to peg it to Proton 10. Game runs odd but not because of Proton, just an odd play.
 
 ## Elden Ring
+#### (Dec 2025)
 ```
-PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 python er-patcher --all --rate 180 -- gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -F fsr --hdr-enabled --force-grab-cursor --adaptive-sync --mangoapp -- %command% &>> ~/Games/SteamLogs/EldenRing/launch.txt
+PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 python er-patcher --all --rate 180 -- gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr --hdr-enabled --force-grab-cursor --adaptive-sync --mangoapp -- %command% &>> ~/Games/SteamLogs/EldenRing/launch.txt
 ```
 
 Elden Ring has a specialized boot layer `er-patcher` that unlocks FPS, and enables ultrawide (5120x1440) to work correctly. Local note in case my other notes get lost: `er-patcher` copies everything in the `(steam).../ELDEN RING/Game/` folder into a temporary sub folder before opening Elden Ring. This should be considered regarding some of the tweaks and mods (ERSS for example).
+
+Special Elden Ring Linux Framegen can be installed. Mod is called ERSS, and can only be located through secondary sites (author pulled fix). This fix, when paired with `er-patcher` requires starting Elden Ring, and copying a generated config file from the temporary sub folder to the Game folder to persist the config file between executions and prevent reconfiguration every time.
+
+## Lies of P
+#### (Dec 2025)
+```
+PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr --mangoapp --hdr-enabled --adaptive-sync -- %command%
+```
+
+## Rimworld
+#### (Dec 2025)
+```
+gamemoderun %command%
+```
+
+## SkyrimSE
+#### (Dec 2025)
+```
+. "/home/seanm/source/repos/MoveToArchLinux/Helper Scripts/Steam/setEnvironmentVariables.sh" "skyrimse" &>> /home/seanm/Games/SteamLogs/SkryimSe/launch.txt; PROTON_ENABLE_WAYLAND=1 PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16,fps_limit=120 gamemoderun mangohud %command%
+```
+
+## Sonic Racing: Cross Worlds
+#### (Dec 2025)
+```
+ WINEDLLOVERRIDES="winmm=n,b" gamemoderun %command%
+```
+
+This command requires a patch to make functional for 5120x1440. Download, and deploy before adding this launch command.
+https://steamcommunity.com/sharedfiles/filedetails/?id=3576681189
+
 
 
 

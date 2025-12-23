@@ -11,3 +11,5 @@ NOTE:
 If you're still using `er-patcher` to run the game: This python utility sets the .exe updates to turn on ultrawide screen, etc. BUT, to do it, it copies the file and executes it in a temporary location.
 
 If you want the ERSS config file that gets generated on the first execution of FrameGen on (tells you it needs a restart to work). You need to either create the file in the ELDEN RING/Game/ folder yourself, or you can open the folder while the game is running, enter the temporary `er-patcher-tmp` folder and retrieve the ERSS-FG.toml file that configures the frame gen tweak and copy it into ELDEN RING/Game/ERSS/{here}.
+
+No compat data tweaks.
