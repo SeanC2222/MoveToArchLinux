@@ -112,7 +112,7 @@ gamemoderun -- %command%
 ## Borderlands 4
 #### (Dec 2025)
 ```
-. "/home/seanm/source/repos/MoveToArchLinux/Helper Scripts/Steam/setEnvironmentVariables.sh" "borderlands4" &>> /home/seanm/Games/SteamLogs/Borderlands4/launch.txt; PROTON_ENABLE_HDR=1 PROTON_FSR4_UPGRADE=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16,fps_limit=12,fsr,hdr gamemoderun gamescope -f -w $SMALL_RENDER_WIDTH -h $SMALL_RENDER_HEIGHT --mangoapp --hdr-enabled --adaptive-sync  --force-grab-cursor --expose-wayland -- %command% >> logfile.txt 2>&1
+. "/home/seanm/source/repos/MoveToArchLinux/Scripts/Steam/set_environment_variables.sh" "borderlands4" &>> /home/seanm/Games/SteamLogs/Borderlands4/launch.txt; PROTON_ENABLE_HDR=1 PROTON_FSR4_UPGRADE=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16,fsr,hdr gamemoderun gamescope -f -F fsr -w $SMALL_RENDER_WIDTH -h $SMALL_RENDER_HEIGHT --mangoapp --hdr-enabled --adaptive-sync  --force-grab-cursor -- %command% >> logfile.txt 2>&1
 ```
 
 ## Counter-Strike 2
@@ -174,11 +174,44 @@ Special Elden Ring Linux Framegen can be installed. Mod is called ERSS, and can 
 PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr --mangoapp --hdr-enabled --adaptive-sync -- %command%
 ```
 
+## Magicka 2
+#### (Dec 2025)
+```
+gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr -- %command%
+```
+
+This is currently rendering fully to the left of the screen, and changes to in-game resolution cause it to shrink. But it plays fine.
+Doesn't seem to have ultrawide support. Not that worried about this.
+
+## Remnant II
+### (Dec 2025)
+```
+PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16 gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr --mangoapp --hdr-enabled --adaptive-sync --force-grab-cursor -- %command%
+```
+
+## Remnant II
+### (Dec 2025)
+```
+PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16,fsr,hdr gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr --mangoapp --hdr-enabled --adaptive-sync --force-grab-cursor -- %command%
+```
+
+Ensure you tweak the in-game settings a touch. But runs pretty solid.
+
 ## Rimworld
 #### (Dec 2025)
 ```
 gamemoderun %command%
 ```
+
+## Roller Coaster Tycoon 3
+#### (Dec 2025)
+```
+gamemoderun %command%
+```
+
+GE-Proton doesn't support this game. Works with Proton 10.
+
+Doesn't support ultrawide. Not really worth trying to fix. Can upgrade resolution to 2560x1440. `.../SteamLibrary/steamapps/compatdata/2700/pfx/drive_c/users/steamuser/AppData/Roaming/Atari/RCT3/Options.txt` and set the first line to "Resolution 2560 1440".
 
 ## SkyrimSE
 #### (Dec 2025)
@@ -186,17 +219,89 @@ gamemoderun %command%
 . "/home/seanm/source/repos/MoveToArchLinux/Helper Scripts/Steam/setEnvironmentVariables.sh" "skyrimse" &>> /home/seanm/Games/SteamLogs/SkryimSe/launch.txt; PROTON_ENABLE_WAYLAND=1 PROTON_ENABLE_HDR=1 MANGOHUD_CONFIG=alpha=0.4,show_fps_limit,cpu_mhz,gpu_load,gpu_load_change,frametime,gamemode,position=top-right,font_size=24,font_size_secondary=16,fps_limit=120 gamemoderun mangohud %command%
 ```
 
+## The Sims 4
+#### (Dec 2025)
+```
+gamemoderun %command%
+```
+
+Consider other EA titles. EA app may want to install into each prefix. Not ideal.
+
+## Sonic Adventure 2
+#### (Dec 2025)
+```
+gamemoderun %command%
+```
+
 ## Sonic Racing: Cross Worlds
 #### (Dec 2025)
 ```
- WINEDLLOVERRIDES="winmm=n,b" gamemoderun %command%
+WINEDLLOVERRIDES="winmm=n,b" gamemoderun %command%
 ```
 
 This command requires a patch to make functional for 5120x1440. Download, and deploy before adding this launch command.
-https://steamcommunity.com/sharedfiles/filedetails/?id=3576681189
+https://steamcommunity.com/sharedfiles/filedetails/?id=3576681189 (or see backups)
+
+## Terraria
+#### (Dec 2025)
+```
+PROTON_HDR_ENABLED=1 gamemoderun gamescope -W 5120 -H 1440 -w 3840 -h 1080 -f -F fsr --adaptive-sync --hdr-enabled -- %command% &>> ~/Games/SteamLogs/Terraria/launch.txt
+```
+
+Terraria can render up to 4096x1152 by ingame processes. Forcing the rendering window for the game to 3840x1080, and upscaling through gamescope fills the space in proper aspect ratio.
+
+NOTE: If you mess with the ingame resolution and set to 4096x1152 _before_ setting gamescope, you may find yourself with a rendering that's upscaled in proper aspect ratio, but with unreachable UI elements. The gamescope window allows for 5120x1440, and so it renders based on the in-game resolution (even though gamescope says "we're only 3840x1080"), and then the upscaling to the max gamescope size happens.
+The solution is to re-set the ingame resolution to the 3840x1080 setting that should be the max size.
+
+## The Witcher 3
+#### (Dec 2025)
+```
+PROTON_ENABLE_WAYLAND=1 PROTON_FSR4_UPGRADE=1 gamemoderun %command%
+```
+
+Steam launch path does not like gamescope. But Witcher natively supports 5120x1440. Could probably improve performance with upscaling.
+
+## XCom: Enemy Unknown
+#### (Dec 2025)
+```
+gamemoderun gamescope -W 2560 -H 1440 -w 1920 -h 1080 -f -F fsr -- %command%
+```
+
+XCom mouse map gets skewed with rendering larger than 1920x1080. There's _likely_ Unreal Engine .ini changes that can be made to fix this skewing, but couldn't figure it out. Instead, upscaling 1920 => 2560 seems a reasonable, easy path.
+
+# Non-Steam Game Configurations
+
+(JK we're going to try to use Steam for this too)
+
+## Battle.nex
+#### (Dec 2025)
+
+Battle.Net Installer:
+```
+export STEAM_COMPAT_CLIENT_INSTALL_PATH=~/.local/share/Steam
+export STEAM_COMPAT_DATA_PATH=~/Games/SteamLibrary/steamapps/compatdata/847713 # 847713 - Made up AppId ("Battle", lol), but may have collisions in future.
+PROTON_PATH=$STEAM_COMPAT_CLIENT_INSTALL_PATH/compatability.d/GE-Proton10-27/proton
+
+sudo pacman -S gnutls lib32-gnutls # Required by Battle.net; Gnu TLS library so not a bad choice to have.
+
+$PROTON_PATH waitforexitandrun ~/Downloads/Battle.net-Setup.exe
+```
+Was getting stuck at 45% until the gnutls libraries were installed.
+
+Battle.Net
+```
+export STEAM_COMPAT_CLIENT_INSTALL_PATH=~/.local/share/Steam
+export STEAM_COMPAT_DATA_PATH=~/Games/SteamLibrary/steamapps/compatdata/847713 # 847713 - Made up AppId ("Battle", lol), but may have collisions in future.
+PROTON_PATH=$STEAM_COMPAT_CLIENT_INSTALL_PATH/compatability.d/GE-Proton10-27/proton
+
+$PROTON_PATH waitforexitandrun "$STEAM_COMPAT_DATA_PATH/pfx/drive_c/Program Files(x86)/Battle.net/Battle.net.ext"
+```
+
+If you see black screen, go to:
+Gear icon in top right => Settings => Advanced => Turn _off_ hardware acceleration and restart Bnet.
 
 
-
+# Reference Hardware
 
 Reference Hardware used in tuning:
 
